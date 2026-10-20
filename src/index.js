@@ -404,6 +404,7 @@ AFRAME.registerComponent('blink-controls', {
   },
 
   onButtonDown: function () {
+    this.updateFloorY()
     this.active = true
     this.redrawLine = true
   },
@@ -550,9 +551,25 @@ AFRAME.registerComponent('blink-controls', {
     return out
   },
 
+  // Lowest point of the collision meshes, so the arc is long enough to reach them.
+  updateFloorY: (function () {
+    const box = new THREE.Box3()
+    return function () {
+      let floorY = Infinity
+      for (const entity of this.collisionEntities || []) {
+        const mesh = entity.getObject3D('mesh')
+        if (!mesh) { continue }
+        box.setFromObject(mesh)
+        if (!box.isEmpty()) { floorY = Math.min(floorY, box.min.y) }
+      }
+      this.floorY = floorY === Infinity ? 0 : floorY
+    }
+  })(),
+
   // To determine how long in terms of t we need to calculate
   parabolicCurveMaxRoot: function (p0, v0, a) {
-    const root = (-v0.y - Math.sqrt(v0.y ** 2 - 4 * (0.5 * a.y) * p0.y)) / (2 * 0.5 * a.y)
+    const height = Math.max(p0.y - (this.floorY || 0), 0)
+    const root = (-v0.y - Math.sqrt(v0.y ** 2 - 4 * (0.5 * a.y) * height)) / (2 * 0.5 * a.y)
     return root
   },
 
