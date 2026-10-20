@@ -353,8 +353,9 @@ AFRAME.registerComponent('blink-controls', {
 
         this.parabolicCurve(p0, v0, a, t, next)
         // Update the raycaster with the length of the current segment last->next
-        const dirLastNext = lastNext.copy(next).sub(last).normalize()
+        const dirLastNext = lastNext.copy(next).sub(last)
         this.raycaster.far = dirLastNext.length()
+        dirLastNext.normalize()
         this.raycaster.set(last, dirLastNext)
 
         this.lastDrawnPoint = next
