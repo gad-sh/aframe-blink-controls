@@ -511,8 +511,16 @@ AFRAME.registerComponent('blink-controls', {
     }
 
     const intersects = this.raycaster.intersectObjects(meshes, true)
+    // The arc stops at the first surface it meets. If that's too steep to land on (a wall),
+    // it's a miss: carrying on would pass through the wall and land behind or inside it.
     if (intersects.length > 0 && !this.hit &&
-        this.isValidNormalsAngle(intersects[0].face.normal, intersects[0].object)) {
+        !this.isValidNormalsAngle(intersects[0].face.normal, intersects[0].object)) {
+      for (let j = i; j < this.line.numPoints; j++) {
+        this.line.setPoint(j, last, intersects[0].point)
+      }
+      return true
+    }
+    if (intersects.length > 0 && !this.hit) {
       const point = intersects[0].point
 
       this.line.material.color.set(this.curveHitColor)
