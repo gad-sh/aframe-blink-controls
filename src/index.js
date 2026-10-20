@@ -188,6 +188,7 @@ AFRAME.registerComponent('blink-controls', {
     // }
   },
   handleThumbstickAxis: function (evt) {
+    if (!this.isPlaying) return
     if (evt.detail.x !== undefined && evt.detail.y !== undefined) {
       const rotation = Math.atan2(evt.detail.x, evt.detail.y) + Math.PI
       const strength = Math.sqrt(evt.detail.x ** 2 + evt.detail.y ** 2)
@@ -404,6 +405,7 @@ AFRAME.registerComponent('blink-controls', {
   },
 
   onButtonDown: function () {
+    if (!this.isPlaying) return
     this.updateFloorY()
     this.active = true
     this.redrawLine = true
@@ -475,6 +477,10 @@ AFRAME.registerComponent('blink-controls', {
       this.el.emit('teleported', this.teleportEventDetail)
     }
   })(),
+
+  pause: function () {
+    if (this.hitEntity) this.cancel()
+  },
 
   cancel: function () {
     this.active = false
